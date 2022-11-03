@@ -7,23 +7,30 @@
 
 import SwiftUI
 
+extension Collection where Indices.Iterator.Element == Index {
+    subscript (safe index: Index) -> Iterator.Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}
+
 @main
 struct mymenubarApp: App {
     @State var scripts : [URL]
+    let kbs = [KeyboardShortcut("1"), KeyboardShortcut("2"), KeyboardShortcut("3"), KeyboardShortcut("4"), KeyboardShortcut("5"), KeyboardShortcut("6"), KeyboardShortcut("7"), KeyboardShortcut("8"), KeyboardShortcut("9"), KeyboardShortcut("0")]
     
     var body: some Scene {
         MenuBarExtra("MMBA", systemImage: "hammer") {
             VStack {
-                ForEach (scripts, id: \.self) { script_url in
-                    Button("\(script_url.lastPathComponent)") {
+                ForEach (scripts.indices) { i in
+                    Button("\(scripts[i].lastPathComponent)") {
                         do {
-                            try Process.run(script_url, arguments: []) {_ in
+                            try Process.run(scripts[i], arguments: []) {_ in
                                 
                             }
                         } catch {
                             
                         }
-                    }
+                    }.keyboardShortcut(kbs[safe: i])
                 }
             }
             Divider()
@@ -35,7 +42,7 @@ struct mymenubarApp: App {
             }
         }
     }
-    
+
     init() {
         do {
             let documentURL = FileManager.default.homeDirectoryForCurrentUser
